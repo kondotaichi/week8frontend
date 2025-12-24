@@ -1,6 +1,6 @@
 // app/thread-list/ThreadListPage.tsx
 'use client';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { signOut } from 'firebase/auth';
 import { auth } from '../../lib/firebase';
@@ -28,25 +28,26 @@ export default function ThreadListPage() {
   const [newThreadTitle, setNewThreadTitle] = useState('');
   const [inputMessage, setInputMessage] = useState('');
 
-  useEffect(() => {
-    if (uid) fetchThreads();
-  }, [uid]);
-
-  useEffect(() => {
-    if (selectedThreadId !== null) fetchMessages(selectedThreadId);
-  }, [selectedThreadId]);
-
-  const fetchThreads = async () => {
+  const fetchThreads = useCallback(async () => {
+    if (!uid) return;
     const res = await fetch(`${API_BASE_URL}/threads?uid=${uid}`);
     const data = await res.json();
     if (Array.isArray(data)) setThreads(data);
-  };
+  }, [uid]);
 
-  const fetchMessages = async (threadId: number) => {
+  const fetchMessages = useCallback(async (threadId: number) => {
     const res = await fetch(`${API_BASE_URL}/messages?thread_id=${threadId}`);
     const data = await res.json();
     setMessages(Array.isArray(data) ? data : []);
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchThreads();
+  }, [fetchThreads]);
+
+  useEffect(() => {
+    if (selectedThreadId !== null) fetchMessages(selectedThreadId);
+  }, [selectedThreadId, fetchMessages]);
 
   const handleCreateThread = async () => {
     if (!newThreadTitle.trim() || !uid) return;

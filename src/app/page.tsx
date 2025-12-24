@@ -3,7 +3,7 @@ import { signInWithPopup } from 'firebase/auth';
 import { auth, provider } from '../lib/firebase';
 import { useRouter } from 'next/navigation';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL;
+const API_BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
 export default function LoginPage() {
   const router = useRouter();
